@@ -1,0 +1,85 @@
+﻿<html>
+<head>
+<meta charset="utf-8">
+<title>Critical Thinking Annotator</title>
+<style>
+                  .entities {
+                    line-height: 1.5 !important;
+                  }
+                  mark {
+                    line-height: 2 !important;
+                    background: yellow !important;
+                  }
+                  mark span {
+                    background: orange !important;
+                    padding: 0.5em;
+                  }
+                  .graph object, .graph svg, .graph img {
+                    max-height: 75vh;
+                  }
+                  .entity {
+                    padding-top: 0.325em !important;
+                  }
+                  mark span {
+                    vertical-align: initial !important;   /* needed for pdfkit */
+                  }
+                </style>
+</head>
+<body>
+<div class="graph"><object data="biases_test_input_evaluation.svg" type="image/svg+xml"></object></div>
+<div style="font: bold 1em Arial;">Qualitative summary:</div><br>
+<div style="font: 1em Arial;">
+Person X is discussing various cognitive biases and fallacies that can affect decision-making. These include confirmation bias (favoring information that confirms pre-existing beliefs), sunk cost fallacy (continuing a behavior due to previously invested resources), anchoring bias (relying too heavily on an initial piece of information), availability heuristic (relying on immediate examples that come to mind), hindsight bias (believing one could have predicted an event after it has occurred), overconfidence bias (overestimating one's abilities or knowledge), groupthink (prioritizing harmony over critical evaluation), loss aversion (preferring to avoid losses rather than acquiring equivalent gains), and self-serving bias (attributing success to oneself and failures to external factors).
+</div>
+<br><br><br>
+<div style="font: bold 1em Arial;">Labelled input:</div><br>
+<div style="font: 1em Arial;">
+<div class="entities" style="line-height: 2.5; direction: ltr">Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    Imagine a person who strongly believes that a particular diet is effective for weight loss. They may seek out information that supports this belief, such as success stories or positive reviews, while ignoring or dismissing information that contradicts it.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Confirmation bias: 100%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    Consider a business that has invested a significant amount of money in a project. Even if the project is proving to be unprofitable or unsustainable, the decision-makers might continue to invest more resources because of the emotional and financial investment already made, rather than objectively evaluating the project's current and future prospects.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Cognitive dissonance: 100%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    In negotiations, the first offer or piece of information often acts as an anchor that influences subsequent decisions. If you're selling a car and you start with a high asking price, even if it's negotiable, potential buyers may be anchored to that higher figure when making counteroffers.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Anchoring bias: 100%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    People tend to give more weight to information that is readily available to them. For instance, if someone hears about a recent plane crash, they may become more fearful of flying, even though statistically, flying is a very safe mode of transportation.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Availability heuristic: 100%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    After a stock market crash, some investors might claim that they &quot;knew all along&quot; that it was going to happen. This bias involves the tendency to believe, after an event has occurred, that one would have predicted or expected the outcome.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Hindsight bias: 100%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    A student might be overly confident about acing an exam and not study adequately. This bias can lead individuals to overestimate their own abilities or the accuracy of their beliefs.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Self-assessment bias: 100%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    In a corporate setting, if a team is overly cohesive and values harmony over critical evaluation, they may not thoroughly analyze potential risks or alternative strategies, leading to suboptimal decision-making.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Groupthink: 60%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    Investors might be more likely to sell winning stocks to &quot;lock in&quot; gains but hold on to losing stocks in the hope that they will rebound. This behavior is driven by the desire to avoid the emotional pain of realizing a loss.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Prospect theory related bias: 100%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    In the workplace, an individual who receives positive feedback on a successful project might attribute the success to their own skills and leadership. However, if the project fails, they might blame external factors beyond their control.
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Attribution bias: 100%</span>
+</mark>
+</div>
+</div>
+</body>
+</html>

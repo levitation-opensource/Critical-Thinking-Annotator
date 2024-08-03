@@ -1,8 +1,14 @@
 
 conversations sources:
-	* https://www.quora.com/What-does-a-typical-conversation-with-a-narcissist-look-sound-like
-	* test_input.txt : https://qr.ae/pyhVd1
+	* biases:
+		* https://www.quora.com/What-are-some-real-world-examples-of-cognitive-biases-at-work-e-g-confirmation-bias-sunk-cost-fallacy-etc
+		* biases_test_input.txt : https://qr.ae/pKxabo
+	* fallacies:
+		* https://www.quora.com/What-are-some-examples-of-narrative-fallacies
+		* fallacies_test_input.txt : https://qr.ae/pKxamp
 
 labels source:
-	* above conversations labelled by ChatGPT
-	* https://www.webmd.com/mental-health/signs-manipulation
+	* biases:
+		* https://en.wikipedia.org/wiki/List_of_cognitive_biases
+	* fallacies:
+		* https://en.wikipedia.org/wiki/List_of_fallacies

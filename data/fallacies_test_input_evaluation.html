@@ -1,0 +1,90 @@
+﻿<html>
+<head>
+<meta charset="utf-8">
+<title>Critical Thinking Annotator</title>
+<style>
+                  .entities {
+                    line-height: 1.5 !important;
+                  }
+                  mark {
+                    line-height: 2 !important;
+                    background: yellow !important;
+                  }
+                  mark span {
+                    background: orange !important;
+                    padding: 0.5em;
+                  }
+                  .graph object, .graph svg, .graph img {
+                    max-height: 75vh;
+                  }
+                  .entity {
+                    padding-top: 0.325em !important;
+                  }
+                  mark span {
+                    vertical-align: initial !important;   /* needed for pdfkit */
+                  }
+                </style>
+</head>
+<body>
+<div class="graph"><object data="fallacies_test_input_evaluation.svg" type="image/svg+xml"></object></div>
+<div style="font: bold 1em Arial;">Qualitative summary:</div><br>
+<div style="font: 1em Arial;">
+Person X consistently uses a variety of reasoning fallacies throughout the conversation. They frequently resort to straw man arguments, misrepresenting the views of their conversational partner to make them easier to attack. They also use ad hominem attacks, criticizing the character of individuals or groups rather than addressing their arguments. Person X often generalizes, making sweeping statements about groups of people or situations based on limited evidence. They also commit the fallacy of false equivalence, equating two things that are not truly comparable. Additionally, they use appeal to authority, citing experts or organizations as definitive proof of their argument, and appeal to emotion, using emotionally charged language to sway the listener. Lastly, they commit the fallacy of false cause, assuming that because one event follows another, the first event caused the second.
+</div>
+<br><br><br>
+<div style="font: bold 1em Arial;">Labelled input:</div><br>
+<div style="font: 1em Arial;">
+<div class="entities" style="line-height: 2.5; direction: ltr">Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Government obviously provides services to the consumer in a more efficient manner than the private sector, so privatization makes no sense.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Improper premise: 90%, Questionable cause: 70%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Without laws, society would descend into anarchy. Libertarians advocate lawless chaos.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Faulty generalizations: 90%</span>
+</mark>
+</br></br>Person X: “You owe society for being permitted to live in it and partake of its benefits, so pay your damn taxes.”</br></br>Person X: “You’re a libertarian? Why do you want to abolish government?”</br></br>Person X: “Why on earth would you want to repeal anti-discrimination laws? Wait, don’t tell me. It’s because you want to keep black and brown people away from your business, right?”</br></br>Person X: “Wait, you’re against hate speech laws? Why do you support hate?”</br></br>Person X: “Oh, that study you cited was conducted by the Heritage Foundation. They’re notoriously racist.”</br></br>Person X: “You’re a white person. You don’t have any right to be commenting on this issue.”</br></br>Person X: “Ayn Rand? Seriously? She was a complete kook. You can’t take anything she wrote seriously.”</br></br>Person X: “Every other civilized country in the world believes healthcare is a human right, and has a national healthcare system. America needs to catch up.”</br></br>Person X: “The USA is the only country that believes firearm ownership is a right. Every other country takes sensible measures to combat gun violence. Do you still think the USA is correct in its views on gun ownership?”</br></br>Person X: “Every other advanced nation did a better job of containing COVID-19, and had a smaller percentage of deaths as a result. The USA’s blinkered focus on the preservation of its citizens’ individual rights is myopic and irresponsible. Other countries believe individual rights are secondary to the collective good. The USA should do the same.”</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Libertarians are just selfish rich white people.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Faulty generalizations: 90%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Californians are rude.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Faulty generalizations: 90%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Helicopter pilots are crazy.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Faulty generalizations: 90%</span>
+</mark>
+</br></br>Person X: “Dr. Fauci says…”</br></br>Person X: “The CDC reported…”</br></br>Person X: “Climate experts agree that…”</br></br>Person X: “We need to do something to stop innocent children from being killed by guns.”</br></br>Person X: “You want to downsize the government and deregulate the private sector? But the poor people! They’re going to suffer!”</br></br>Person X: “Wait, you DON’T support mandatory lockdowns and mask mandates and quarantines? Do you WANT old people to die just so you can exercise your freedom?”</br></br>Person X: “You’re against hate speech laws? You’re a disgusting Nazi.”</br></br>Person X: “You want to repeal anti-discrimination laws? You’re a racist pig.”</br></br>Person X: “Ayn Rand was an insane sexual deviant. Her ‘philosophy’ isn’t worth a hootenanny goddamn.”</br></br>Person X: “If we abolished government, the US would descend into lawless chaos.”</br></br>Person X: “This country will turn into a hyper-corporate dystopia if we roll back economic regulations.”</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “You know what you get when you downsize government? Somalia.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Faulty generalizations: 60%</span>
+</mark>
+</br></br>Person X: “Schoolchildren in the USA recite a ‘pledge of allegiance’ each morning. This is exactly the same sort of far-right nationalism displayed by Nazi Germany.”</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Gun rights activists’ fears of government tyranny and white supremacists’ fears about whites’ declining position in American society are very similar. Therefore it is safe to assume that gun rights activists are, by and large, white supremacists.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Faulty generalizations: 80%</span>
+</mark>
+</br></br>Person X: “Both rape and the denial of access to abortion are violations of a woman’s right to bodily autonomy. Therefore, denying a woman an abortion is the moral equivalent of rape.”</br></br>Person X: “The catalytic converter in the new Dodge Dart breaks if you take a speed bump too quickly. The car’s a poorly designed piece of crap.”</br></br>Person X: “I’ve never had a good experience with Macy’s customer service department. The company just doesn’t understand what good service is.”</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Donald Trump was the Republican nominee for president, and he’s a racist pig. Republicans are therefore racist pigs for supporting him.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Faulty generalizations: 90%</span>
+</mark>
+</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Uyghurs in China aren’t being oppressed. You know who is being oppressed? Black people shot by police in America.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Red herring: 60%</span>
+</mark>
+</br></br>Person X: “How can you say that taxation is theft and that you want to abolish it when you’re still driving on public roads and checking out public library books?”</br></br>Person X: “Ayn Rand took advantage of Social Security late in life. So much for her vaunted ‘Objectivism.’ She was obviously a hypocrite and a liar.”</br></br>Person X: “A militia couldn’t possibly defeat a modern military force like the US Army.”</br></br>Person X: “You can’t claim to care about the lives of unborn children when thousands of American kids are being shot to death because of a lack of sensible gun laws.”</br></br>Person X: 
+<mark class="entity" style="background: #ddd; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    “Who cares if the Mongols helped convey the compass, gunpowder, and the printing press to Europe and thereby ushered in the Renaissance? They were a bunch of murdering, thieving rapists.”
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">Red herring: 60%</span>
+</mark>
+</div>
+</div>
+</body>
+</html>

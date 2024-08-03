@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Author: Roland Pihlakas, 2023 - 2023
+# Author: Roland Pihlakas, 2023 - 2024
 #
 # roland@simplify.ee
 #
@@ -49,9 +49,8 @@ async def multi_file_label_filter(do_open_ended_analysis = None, do_closed_ended
 
 
   find_labels = set([ # TODO: find a way to put these labels on command line?
-    # "Demanding",
-    # "Creating artificial obligations",
-    # "Not attempting to understand",
+    # "False dilemma",
+    # "Availability heuristic",
   ])
 
 

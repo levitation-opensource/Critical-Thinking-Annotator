@@ -539,7 +539,7 @@ async def run_llm_analysis(config, model_name, encoding, gpt_timeout, messages, 
 
   if result is not None:
 
-    create_opensource_llm_trainingdata = True   # TODO: config
+    create_opensource_llm_trainingdata = False   # TODO: config
 
     if create_opensource_llm_trainingdata:
 
@@ -1800,7 +1800,7 @@ async def recogniser_process_chunk(user_input, config, instructions, encoding, d
   #/ for entry in expression_dicts:
 
 
-  create_opensource_llm_trainingdata = True   # TODO: config
+  create_opensource_llm_trainingdata = False   # TODO: config
 
   if create_opensource_llm_trainingdata:
 
@@ -1910,7 +1910,8 @@ async def recogniser(do_open_ended_analysis = None, do_closed_ended_analysis = N
 
 
   if theme is None:
-    theme = "manipulation"
+    # theme = "biases"
+    theme = "fallacies"
 
 
   labels_filename = argv[3] if len(argv) > 3 else None
@@ -2551,7 +2552,7 @@ async def recogniser(do_open_ended_analysis = None, do_closed_ended_analysis = N
 
 
 
-  create_opensource_llm_trainingdata = True   # TODO: config
+  create_opensource_llm_trainingdata = False   # TODO: config
 
   if create_opensource_llm_trainingdata:
 
@@ -2644,7 +2645,7 @@ async def recogniser(do_open_ended_analysis = None, do_closed_ended_analysis = N
     chart_type = config.get("chart_type")
 
 
-    title = "Manipulative Expression Recognition (MER)"
+    title = "Critical Thinking Annotator"
 
 
     import pygal

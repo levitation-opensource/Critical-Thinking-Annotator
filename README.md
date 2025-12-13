@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Fallacy and cognitive bias detector identifies and highlights reasoning fallacies and cognitive biases in text from human conversations and AI-generated responses. It promotes rational reasoning and clarity of mind. It mitigates harmful judgement and spreading of misinformation by detecting fallacies and biases in human thought patterns.
+Fallacy and cognitive bias detector identifies and highlights reasoning fallacies and cognitive biases in text from human conversations and AI-generated responses. It promotes rational reasoning and clarity of mind. It mitigates harmful judgement and spreading of misinformation by detecting fallacies and biases in communication and thoughts.
 
 In the human realm of reasoning and communication, reasoning fallacies and cognitive biases can significantly impact interpersonal relationships, business negotiations, politics, and many other areas of life.
 

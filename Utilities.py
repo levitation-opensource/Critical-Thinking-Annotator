@@ -93,7 +93,7 @@ if False and debugging:   # enable nested async calls so that async methods can 
 
 # https://stackoverflow.com/questions/28452429/does-gzip-compression-level-have-any-impact-on-decompression
 # there's no extra overhead for the client/browser to decompress more heavily compressed gzip files
-compresslevel = 9   # 6 is default level for gzip: https://linux.die.net/man/1/gzip
+compresslevel = 6   # 6 is default level for gzip: https://linux.die.net/man/1/gzip
 # https://github.com/ebiggers/libdeflate
 
 data_dir = "data"
@@ -126,7 +126,7 @@ def safeprint(text = "", is_pandas = False):
       np.set_printoptions(linewidth=screen_width, precision=2, floatmode="maxprec_equal", threshold=int((screen_height - 3) * screen_height / 2), edgeitems=int((screen_width - 3 - 4) / 5 / 2), formatter={ "bool": (lambda x: "T" if x else "_") }) # "maxprec_equal": Print at most precision fractional digits, but if every element in the array can be uniquely represented with an equal number of fewer digits, use that many digits for all elements.
 
     if is_pandas:
-      import pd
+      import pandas as pd
       pd.set_option("display.precision", 2)
       pd.set_option("display.width", screen_width)        # pandas might fail to autodetect screen width when running under debugger
       pd.set_option("display.max_columns", screen_width)  # setting display.width is not sufficient for some  reason
@@ -156,7 +156,7 @@ def safeprinterror(text = "", is_pandas = False):
       np.set_printoptions(linewidth=screen_width, precision=2, floatmode="maxprec_equal", threshold=int((screen_height - 3) * screen_height / 2), edgeitems=int((screen_width - 3 - 4) / 5 / 2), formatter={ "bool": (lambda x: "T" if x else "_") }) # "maxprec_equal": Print at most precision fractional digits, but if every element in the array can be uniquely represented with an equal number of fewer digits, use that many digits for all elements.
 
     if is_pandas:
-      import pd
+      import pandas as pd
       pd.set_option("display.precision", 2)
       pd.set_option("display.width", screen_width)        # pandas might fail to autodetect screen width when running under debugger
       pd.set_option("display.max_columns", screen_width)  # setting display.width is not sufficient for some reason
@@ -339,27 +339,37 @@ async def save_file(filename, data, quiet = False, make_backup = False):
 
     fullfilename = os.path.join(data_dir, filename)
 
-    if (1 == 1):    # enable async code
+    for remaining_tries in range(10, 1, -1):
+      try: # try handling "RuntimeError: can't allocate read lock"
 
-      async with aiofiles.open(fullfilename + ".gz.tmp", 'wb', 1024 * 1024) as afh:
-        with io.BytesIO() as fh:    # TODO: compress directly during reading and without using intermediate buffer for async data
-          with gzip.GzipFile(fileobj=fh, filename=filename, mode='wb', compresslevel=compresslevel) as gzip_file:
-            pickle.dump(data, gzip_file)
-            gzip_file.flush() # NB! necessary to prevent broken gz archives on random occasions (does not depend on input data)
-          fh.flush()  # just in case
-          buffer = bytes(fh.getbuffer())  # NB! conversion to bytes is necessary to avoid "BufferError: Existing exports of data: object cannot be re-sized"
-          await afh.write(buffer)
-        await afh.flush()
+        if (1 == 1):    # enable async code
 
-    else:   #/ if (1 == 0):
+          async with aiofiles.open(fullfilename + ".gz.tmp", 'wb', 1024 * 1024) as afh:
+            with io.BytesIO() as fh:    # TODO: compress directly during reading and without using intermediate buffer for async data
+              with gzip.GzipFile(fileobj=fh, filename=filename, mode='wb', compresslevel=compresslevel) as gzip_file:
+                pickle.dump(data, gzip_file)
+                gzip_file.flush() # NB! necessary to prevent broken gz archives on random occasions (does not depend on input data)
+              fh.flush()  # just in case
+              buffer = bytes(fh.getbuffer())  # NB! conversion to bytes is necessary to avoid "BufferError: Existing exports of data: object cannot be re-sized"
+              await afh.write(buffer)
+            await afh.flush()
 
-      with open(fullfilename + ".gz.tmp", 'wb', 1024 * 1024) as fh:
-        with gzip.GzipFile(fileobj=fh, filename=filename, mode='wb', compresslevel=compresslevel) as gzip_file:
-          pickle.dump(data, gzip_file)
-          gzip_file.flush() # NB! necessary to prevent broken gz archives on random occasions (does not depend on input data)
-        fh.flush()  # just in case
+        else:   #/ if (1 == 0):
 
-    #/ if (1 == 0):
+          with open(fullfilename + ".gz.tmp", 'wb', 1024 * 1024) as fh:
+            with gzip.GzipFile(fileobj=fh, filename=filename, mode='wb', compresslevel=compresslevel) as gzip_file:
+              pickle.dump(data, gzip_file)
+              gzip_file.flush() # NB! necessary to prevent broken gz archives on random occasions (does not depend on input data)
+            fh.flush()  # just in case
+
+        #/ if (1 == 0):
+
+        break 
+      except Exception as ex:
+        if remaining_tries == 1:
+          raise
+        else:
+          time.sleep(1)
 
     await rename_temp_file(fullfilename + ".gz", make_backup)
 
@@ -401,19 +411,33 @@ async def save_raw(filename, data, quiet = False, make_backup = False, append = 
 
     fullfilename = os.path.join(data_dir, filename)
 
-    if (1 == 1):
+    for remaining_tries in range(10, 1, -1):
+      try: # try handling "RuntimeError: can't allocate read lock"
 
-      async with aiofiles.open(fullfilename + ("" if append else ".tmp"), 'ab' if append else 'wb', 1024 * 1024) as afh:
-        await afh.write(data)
-        await afh.flush()
+        if (1 == 1):
 
-    else:   #/ if (1 == 0):
+          async with aiofiles.open(fullfilename + ("" if append else ".tmp"), 'ab' if append else 'wb', 1024 * 1024) as afh:
+            await afh.write(data)
+            if append:
+              remaining_tries = 1   # cannot retry in "append" mode
+            await afh.flush()
 
-      with open(fullfilename + ("" if append else ".tmp"), 'ab' if append else 'wb', 1024 * 1024) as fh:
-        fh.write(data)
-        fh.flush()  # just in case
+        else:   #/ if (1 == 0):
 
-    #/ if (1 == 0):
+          with open(fullfilename + ("" if append else ".tmp"), 'ab' if append else 'wb', 1024 * 1024) as fh:
+            fh.write(data)
+            if append:
+              remaining_tries = 1   # cannot retry in "append" mode
+            fh.flush()  # just in case
+
+        #/ if (1 == 0):
+
+        break 
+      except Exception as ex:
+        if remaining_tries == 1:
+          raise
+        else:
+          time.sleep(1)
 
     if not append:
       await rename_temp_file(fullfilename, make_backup)
@@ -461,22 +485,40 @@ async def save_txt(filename, str, quiet = False, make_backup = False, append = F
 
     fullfilename = os.path.join(data_dir, filename)
 
-    if (1 == 1):    # enable async code
+    for remaining_tries in range(10, 1, -1):
+      try: # try handling "RuntimeError: can't allocate read lock"
 
-      async with aiofiles.open(fullfilename + ("" if append else ".tmp"), 'at' if append else 'wt', 1024 * 1024, encoding="utf-8") as afh:    # wt format automatically handles line breaks depending on the current OS type
-        if use_bom:
-          await afh.write(codecs.BOM_UTF8.decode("utf-8"))
-        await afh.write(str)
-        await afh.flush()
+        if (1 == 1):    # enable async code
 
-    else:   #/ if (1 == 0):
+          async with aiofiles.open(fullfilename + ("" if append else ".tmp"), 'at' if append else 'wt', 1024 * 1024, encoding="utf-8") as afh:    # wt format automatically handles line breaks depending on the current OS type
+            if use_bom:
+              await afh.write(codecs.BOM_UTF8.decode("utf-8"))
+              if append:
+                remaining_tries = 1   # cannot retry in "append" mode
+            await afh.write(str)
+            if append:
+              remaining_tries = 1   # cannot retry in "append" mode
+            await afh.flush()
 
-      with open(fullfilename + ("" if append else ".tmp"), 'at' if append else 'wt', 1024 * 1024, encoding="utf-8") as fh:    # wt format automatically handles line breaks depending on the current OS type
-        if use_bom:
-          # fh.write(codecs.BOM_UTF8 + str.encode("utf-8", "ignore"))
-          fh.write(codecs.BOM_UTF8.decode("utf-8"))
-        fh.write(str)
-        fh.flush()  # just in case
+        else:   #/ if (1 == 0):
+
+          with open(fullfilename + ("" if append else ".tmp"), 'at' if append else 'wt', 1024 * 1024, encoding="utf-8") as fh:    # wt format automatically handles line breaks depending on the current OS type
+            if use_bom:
+              # fh.write(codecs.BOM_UTF8 + str.encode("utf-8", "ignore"))
+              fh.write(codecs.BOM_UTF8.decode("utf-8"))
+              if append:
+                remaining_tries = 1   # cannot retry in "append" mode
+            fh.write(str)
+            if append:
+              remaining_tries = 1   # cannot retry in "append" mode
+            fh.flush()  # just in case
+
+        break 
+      except Exception as ex:
+        if remaining_tries == 1:
+          raise
+        else:
+          time.sleep(1)
 
     if not append:
       await rename_temp_file(fullfilename, make_backup)

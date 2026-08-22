@@ -82,7 +82,7 @@ async def multi_file_recogniser(do_open_ended_analysis = None, do_closed_ended_a
   aggregated_counts = Counter()
   for counts in all_counts:
     for person, person_counts in counts.items():
-      aggregated_counts += person_counts
+      aggregated_counts.update(person_counts)
 
   aggregated_unexpected_labels = Counter()
   for unexpected_labels in all_unexpected_labels:

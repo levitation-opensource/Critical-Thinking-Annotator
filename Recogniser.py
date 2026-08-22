@@ -46,6 +46,7 @@ import json   # json.decoder.JSONDecodeError
 
 # import openai
 import tenacity   # for exponential backoff
+import openai
 import openai_async
 import tiktoken
 
@@ -158,15 +159,35 @@ def get_config():
 #/ get_config()
 
 
+def wait_for_enter(message=None):
+  if os.name == "nt":
+    import msvcrt
+    if message is not None:
+      safeprint(message)
+    msvcrt.getch()  # Uses less CPU on Windows than input() function. This becomes perceptible when multiple console windows with Python are waiting for input. Note that the graph window will be frozen, but will still show graphs.
+  else:
+    if message is None:
+      message = ""
+    input(message)
+
+
 ## https://platform.openai.com/docs/guides/rate-limits/error-mitigation
-@tenacity.retry(wait=tenacity.wait_random_exponential(min=1, max=60), stop=tenacity.stop_after_attempt(6))   # TODO: config parameters
+# TODO: config parameter for max attempt number
+@tenacity.retry(
+  wait=tenacity.wait_random_exponential(min=1, max=60), 
+  stop=tenacity.stop_after_attempt(1000000000)   # TODO: config parameters
+)
 async def completion_with_backoff(gpt_timeout, **kwargs):  # TODO: ensure that only HTTP 429 is handled here
 
   # return openai.ChatCompletion.create(**kwargs) 
 
   qqq = True  # for debugging
 
-  attempt_number = completion_with_backoff.retry.statistics["attempt_number"]
+  attempt_number = completion_with_backoff.retry.statistics.get("attempt_number")
+  if attempt_number is None:  # the API has changed
+    attempt_number = completion_with_backoff.statistics["attempt_number"]
+
+  max_attempt_number = completion_with_backoff.retry.stop.max_attempt_number
   timeout_multiplier = 2 ** (attempt_number-1) # increase timeout exponentially
 
   try:
@@ -195,37 +216,51 @@ async def completion_with_backoff(gpt_timeout, **kwargs):  # TODO: ensure that o
     # NB! this line may also throw an exception if the OpenAI announces that it is overloaded # TODO: do not retry for all error messages
     response_content = openai_response["choices"][0]["message"]["content"]
     finish_reason = openai_response["choices"][0]["finish_reason"]
+            
+    if response_content == "":
+      raise httpcore.NetworkError("Empty response content")
 
     return (response_content, finish_reason)
 
   except Exception as ex:   # httpcore.ReadTimeout
 
     t = type(ex)
-    if (t is httpcore.ReadTimeout or t is httpx.ReadTimeout): 	# both exception types have occurred
+    if (t is httpcore.ReadTimeout or t is httpx.ReadTimeout or t is openai.APITimeoutError): 	# both exception types have occurred
 
-      if attempt_number < 6:    # TODO: config parameter
+      if attempt_number < max_attempt_number:
         safeprint("Read timeout, retrying...")
       else:
-        safeprint("Read timeout, giving up")
+        # safeprint("Read timeout, giving up")
+        wait_for_enter("Read timeout. Press enter to retry.")
 
-    elif (t is httpcore.NetworkError):
+    elif (t is httpcore.NetworkError or t is openai.InternalServerError or t is openai.BadRequestError):
 
-      if attempt_number < 6:    # TODO: config parameter
+      if attempt_number < max_attempt_number:
         safeprint("Network error, retrying...")
       else:
-        safeprint("Network error, giving up")
+        # safeprint("Network error, giving up")
+        wait_for_enter("Network error. Press enter to retry.")
 
     elif (t is json.decoder.JSONDecodeError):
 
-      if attempt_number < 6:    # TODO: config parameter
+      if attempt_number < max_attempt_number:
         safeprint("Response format error, retrying...")
       else:
-        safeprint("Response format error, giving up")
+        # safeprint("Response format error, giving up")
+        wait_for_enter("Response format error. Press enter to retry.")
+
+    elif (t is openai.RateLimitError):    # TODO: add support for Claude rate limit error as well
+      if attempt_number < max_attempt_number:
+        safeprint("Rate limit error, retrying...")
+      else:
+        wait_for_enter("Rate limit error. Press enter to retry.")
 
     else:   #/ if (t ishttpcore.ReadTimeout
 
       msg = str(ex) + "\n" + traceback.format_exc()
       print_exception(msg)
+
+      wait_for_enter("Press any key to retry")
 
     #/ if (t ishttpcore.ReadTimeout
 
@@ -257,12 +292,15 @@ def num_tokens_from_messages(messages, model, encoding = None):
     encoding = get_encoding_for_model(model)
 
   if model in {
+    "gpt-3.5-turbo-0125",
     "gpt-3.5-turbo-0613",
     "gpt-3.5-turbo-16k-0613",
     "gpt-4-0314",
     "gpt-4-0613",
     "gpt-4-32k-0314",
     "gpt-4-32k-0613",
+    "gpt-4o-mini-2024-07-18",
+    "gpt-4o-2024-08-06",
   }:
     tokens_per_message = 3
     tokens_per_name = 1
@@ -282,6 +320,14 @@ def num_tokens_from_messages(messages, model, encoding = None):
   elif "gpt-4-32k" in model: # roland
     # safeprint("Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-32k-0613.")
     return num_tokens_from_messages(messages, model="gpt-4-32k-0613", encoding=encoding)
+
+  elif "gpt-4o-mini" in model:
+    # safeprint("Warning: gpt-4o-mini may update over time. Returning num tokens assuming gpt-4o-mini-2024-07-18.")
+    return num_tokens_from_messages(messages, model="gpt-4o-mini-2024-07-18", encoding=encoding)
+
+  elif "gpt-4o" in model:
+    # safeprint("Warning: gpt-4o and gpt-4o-mini may update over time. Returning num tokens assuming gpt-4o-2024-08-06.")
+    return num_tokens_from_messages(messages, model="gpt-4o-2024-08-06", encoding=encoding)
 
   elif "gpt-4" in model:
     # safeprint("Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-0613.")
@@ -304,6 +350,9 @@ def num_tokens_from_messages(messages, model, encoding = None):
 
     for key, value in message.items():
 
+      if key == "weight":
+        continue
+
       num_tokens += len(encoding.encode(value))
       if key == "name":
         num_tokens += tokens_per_name
@@ -323,7 +372,37 @@ def num_tokens_from_messages(messages, model, encoding = None):
 def get_max_tokens_for_model(model_name):
 
   # TODO: config  
-  if model_name == "gpt-4-turbo-preview": # https://platform.openai.com/docs/models/gpt-4
+  if model_name == "o1": # https://platform.openai.com/docs/models/#o1
+    max_tokens = 200000
+  elif model_name == "o1-2024-12-17": # https://platform.openai.com/docs/models/#o1
+    max_tokens = 200000
+  elif model_name == "o1-mini": # https://platform.openai.com/docs/models/#o1
+    max_tokens = 128000
+  elif model_name == "o1-mini-2024-09-12": # https://platform.openai.com/docs/models/#o1
+    max_tokens = 128000
+  elif model_name == "o1-preview": # https://platform.openai.com/docs/models/#o1
+    max_tokens = 128000
+  elif model_name == "o1-preview-2024-09-12": # https://platform.openai.com/docs/models/#o1
+    max_tokens = 128000
+  elif model_name == "gpt-4o-mini": # https://platform.openai.com/docs/models/gpt-4o-mini
+    max_tokens = 128000
+  elif model_name == "gpt-4o-mini-2024-07-18": # https://platform.openai.com/docs/models/gpt-4o-mini
+    max_tokens = 128000
+  elif model_name == "gpt-4o": # https://platform.openai.com/docs/models/gpt-4o
+    max_tokens = 128000
+  elif model_name == "gpt-4o-2024-05-13": # https://platform.openai.com/docs/models/gpt-4o
+    max_tokens = 128000
+  elif model_name == "gpt-4o-2024-08-06": # https://platform.openai.com/docs/models/gpt-4o
+    max_tokens = 128000
+  elif model_name == "gpt-4o-2024-11-20": # https://platform.openai.com/docs/models/gpt-4o
+    max_tokens = 128000
+  elif model_name == "chatgpt-4o-latest": # https://platform.openai.com/docs/models/gpt-4o
+    max_tokens = 128000
+  elif model_name == "gpt-4-turbo": # https://platform.openai.com/docs/models/gpt-4
+    max_tokens = 128000
+  elif model_name == "gpt-4-turbo-2024-04-09": # https://platform.openai.com/docs/models/gpt-4
+    max_tokens = 128000
+  elif model_name == "gpt-4-turbo-preview": # https://platform.openai.com/docs/models/gpt-4
     max_tokens = 128000
   elif model_name == "gpt-4-0125-preview": # https://platform.openai.com/docs/models/gpt-4
     max_tokens = 128000
@@ -335,10 +414,20 @@ def get_max_tokens_for_model(model_name):
     max_tokens = 16384
   elif model_name == "gpt-4": # https://platform.openai.com/docs/models/gpt-4
     max_tokens = 8192
-  elif model_name == "gpt-3.5-turbo": # https://platform.openai.com/docs/models/gpt-3-5
+  elif model_name == "gpt-4-0314": # https://platform.openai.com/docs/models/gpt-4
+    max_tokens = 8192
+  elif model_name == "gpt-4-0613": # https://platform.openai.com/docs/models/gpt-4
+    max_tokens = 8192
+  elif model_name == "gpt-3.5-turbo-0125": # https://platform.openai.com/docs/models/gpt-3-5-turbo
+    max_tokens = 16385
+  elif model_name == "gpt-3.5-turbo": # https://platform.openai.com/docs/models/gpt-3-5-turbo
+    max_tokens = 16385
+  elif model_name == "gpt-3.5-turbo-1106": # https://platform.openai.com/docs/models/gpt-3-5-turbo
+    max_tokens = 16385
+  elif model_name == "gpt-3.5-turbo-instruct": # https://platform.openai.com/docs/models/gpt-3-5-turbo
     max_tokens = 4096
   else:
-    max_tokens = 4096
+    max_tokens = 128000
 
   return max_tokens
 
@@ -440,7 +529,7 @@ async def run_llm_analysis_uncached(model_name, encoding, gpt_timeout, messages,
 
         temperature = temperature, # 1,   0 means deterministic output  # TODO: increase in case of sampling the GPT multiple times per same text
         top_p = 1,
-        max_tokens = max_tokens2,
+        max_completion_tokens = max_tokens2,
         presence_penalty = 0,
         frequency_penalty = 0,
         # logit_bias = None,
@@ -608,7 +697,12 @@ def anonymise_uncached(user_input, anonymise_names, anonymise_numbers, ner_model
     NER = spacy.load(ner_model)   # TODO: config setting
 
 
+  # try:
   entities = NER(user_input)
+  # except ValueError as ex:  # for some content, NER fails with message like "ValueError: Shape mismatch for blis.gemm: (1, 0), (768, 49)"
+  #  result = "NER error"    # TODO: make the error message configurable
+  #  return result
+
   letters = string.ascii_uppercase if not use_only_numeric_replacements else ""
 
   next_available_replacement_letter_index = 0
@@ -631,7 +725,7 @@ def anonymise_uncached(user_input, anonymise_names, anonymise_numbers, ner_model
     # detect any pre-existing anonymous entities like Person A, Person B in the input text and reserve these letters in the dict so that they are not reused
 
     # TODO: match also strings like "Person 123"
-    re_matches = re.findall(r"(^|\s)(" + active_replacements + ")(\s+)([" + re.escape(letters) + "]|[0-9]+)(\s|:|$)", user_input) # NB! capture also numbers starting with 0 so that for example number 09 still ends up reserving number 9.
+    re_matches = re.findall(r"(^|\s)(" + active_replacements + r")(\s+)([" + re.escape(letters) + r"]|[0-9]+)(\s|:|$)", user_input) # NB! capture also numbers starting with 0 so that for example number 09 still ends up reserving number 9.
 
     for re_match in re_matches:
 
@@ -2024,7 +2118,7 @@ async def recogniser(do_open_ended_analysis = None, do_closed_ended_analysis = N
         parts = re.compile(r"[\r\n]+").split(paragraph)
 
         for index, part in enumerate(parts):
-          if len(part) > 0 and part[-1] not in ":\-.!?":   # When joining linebreaks, add punctuation after each line.
+          if len(part) > 0 and part[-1] not in ":\\-.!?":   # When joining linebreaks, add punctuation after each line.
             part += "."
             parts[index] = part
 
